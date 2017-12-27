@@ -8,10 +8,10 @@ module.exports = {
     EMAIL: {
         HOST: 'mail.smtp2go.com',
         PORT: 2525,
-        SENDER: 'emailservice4@gmail.com',
+        SENDER: 'smtpusername1@mail.smtp2go.com',
         AUTH: {
-            USER: 'emailservice4@gmail.com',
-            PASS: 'L2aEVvtM60BK'
+            USER: 'smtpusername1@mail.smtp2go.com',
+            PASS: 'd201c3h3c3VtdDAw'
         }
     }
 };
