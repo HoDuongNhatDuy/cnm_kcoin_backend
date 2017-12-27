@@ -2,7 +2,8 @@ let express = require('express');
 let router = express.Router();
 // let jwt = require('express-jwt');
 // let jwks = require('jwks-rsa');
-let configs = require('../configs');
+let CONFIGS = require('../configs');
+let AuthController = require('../controllers/apis/AuthController');
 
 // const jwtCheck = jwt({
 //     secret: jwks.expressJwtSecret({
@@ -29,5 +30,14 @@ router.get('/', function(req, res, next) {
 //         message: 'Test auth'
 //     });
 // });
+
+function authCheck(req, res, next) {
+
+}
+
+router.post('/register', AuthController.Register);
+router.get('/activate/:userId', AuthController.Active);
+router.post('/login', AuthController.Login);
+router.post('/send-activate-email', AuthController.SendActiveEmail);
 
 module.exports = router;
