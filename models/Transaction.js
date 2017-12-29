@@ -6,10 +6,9 @@ let LocalTransactionSchema = new mongoose.Schema(
         dest_address: {type: String, required: true},
         amount: {type: Number},
         remaining_amount: {type: Number},
-        status: {type: Number}
+        status: {type: String}
     }
 );
-
 
 let RemoteTransactionSchema = new mongoose.Schema(
     {
