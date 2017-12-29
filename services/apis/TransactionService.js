@@ -1,6 +1,8 @@
-let Transaction = require('../../models/Transaction');
+const LocalTransaction = require('../../models/LocalTransaction');
+const RemoteTransaction = require('../../models/RemoteTransaction');
 const ursa = require('ursa');
 const HASH_ALGORITHM = 'sha256';
+const CONFIGS      = require('../../configs');
 
 module.exports.GetLocalTransactionById = function (id) {
     return new Promise(resolve => {
@@ -21,7 +23,8 @@ module.exports.GetRemoteTransactionById = function (id) {
 
 module.exports.CreateLocalTransaction = function (newLocalTx) {
     return new Promise(resolve => {
-        newLocalTx.save(function (err, tx) {
+        let newObj = new LocalTransaction(newLocalTx);
+        newObj.save(function (err, tx) {
             resolve(tx);
         });
     });
@@ -29,7 +32,8 @@ module.exports.CreateLocalTransaction = function (newLocalTx) {
 
 module.exports.CreateRemoteTransaction = function (newRemoteTx) {
     return new Promise(resolve => {
-        newRemoteTx.save(function (err, tx) {
+        let newObj = new RemoteTransaction(newRemoteTx);
+        newObj.save(function (err, tx) {
             resolve(tx);
         });
     });
@@ -159,3 +163,56 @@ module.exports.CreateBlockChainTransactionRequest = function (inputs, outputs) {
 
     return bountyTransaction;
 };
+
+function GetLocalTransactions (address) {
+    return new Promise(resolve => {
+        LocalTransaction.find({
+            $or: [
+                {src_addr: address},
+                {dst_addr: address},
+            ],
+            status: {'$ne': 'invalid' }
+        }, function (error, transactions) {
+            if (!transactions) {
+                resolve([]);
+                return;
+            }
+            resolve(transactions);
+        })
+    });
+}
+
+module.exports.GetLocalTransactions = async function (address) {
+    return await GetLocalTransactions(address);
+};
+
+/**
+ * @return {number}
+ */
+module.exports.GetBalance = async function(address, type = CONFIGS.BALANCE_TYPE.AVAILABLE) {
+    let transactions  = await GetLocalTransactions(address);
+    let receivedAmount = 0;
+    let sentAmount    = 0;
+    for (let index in transactions) {
+        let transaction = transactions[index];
+
+        if (transaction.status === CONFIGS.LOCAL_TRANSACTION_STATUS.INVALID)
+            continue;
+
+        if (type === CONFIGS.BALANCE_TYPE.ACTUAL && transaction.status !== CONFIGS.LOCAL_TRANSACTION_STATUS.DONE)
+            continue;
+
+        if (transaction.src_addr === address) {
+            sentAmount += transaction.amount;
+        }
+        else if (transaction.dst_addr === address) {
+            receivedAmount += transaction.amount;
+        }
+    }
+
+    return receivedAmount - sentAmount;
+};
+
+function BuildTransactionRequest(srcAddress, dstAddress, amount) {
+    
+}

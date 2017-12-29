@@ -18,8 +18,9 @@ let TransactionService = require('../services/apis/TransactionService');
 //     algorithms: ['RS256']
 // });
 
-router.get('/', function (req, res, next) {
+router.get('/',async function (req, res, next) {
 
+    // CREATE TRANSACTION REQUEST
     // let inputs = [
     //     {
     //         source: {
@@ -56,10 +57,21 @@ router.get('/', function (req, res, next) {
     //
     // let request = TransactionService.CreateBlockChainTransactionRequest(inputs, outputs);
 
+    // $x = await TransactionService.CreateLocalTransaction({
+    //     src_address: '888',
+    //     dst_address: '456',
+    //     amount: 12,
+    //     remaining_amount: ,
+    //     status: 'pending'
+    // });
+
+    // GET BALANCE
+    // $x = await TransactionService.GetBalance('456', CONFIGS.BALANCE_TYPE.ACTUAL);
+
     res.json({
         status: 1,
         message: 'Welcome to KCoin API',
-        // data: request
+        // data: $x
     });
 });
 

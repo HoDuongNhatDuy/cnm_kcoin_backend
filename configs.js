@@ -13,5 +13,18 @@ module.exports = {
             USER: 'smtpusername1@mail.smtp2go.com',
             PASS: 'd201c3h3c3VtdDAw'
         }
+    },
+    LOCAL_TRANSACTION_STATUS: {
+        PENDING: 'pending',
+        DONE: 'done',
+        INVALID: 'invalid'
+    },
+    REMOTE_TRANSACTION_STATUS: {
+        PENDING: 'USED',
+        DONE: 'FREE',
+    },
+    BALANCE_TYPE: {
+        AVAILABLE: 'available',
+        ACTUAL: 'actual'
     }
 };
