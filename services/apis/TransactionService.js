@@ -131,7 +131,7 @@ function ToBinary(transaction, withoutUnlockScript) {
         ....
     ]
  */
-module.exports.CreateBlockChainTransactionRequest = function (inputs, outputs) {
+module.exports.SignTransactionRequest = function (inputs, outputs) {
     // Generate transactions
     let bountyTransaction = {
         version: 1,
@@ -213,6 +213,50 @@ module.exports.GetBalance = async function(address, type = CONFIGS.BALANCE_TYPE.
     return receivedAmount - sentAmount;
 };
 
-function BuildTransactionRequest(srcAddress, dstAddress, amount) {
-    
+function GetFreeRemoteTransactions() {
+    return new Promise(resolve => {
+        RemoteTransaction.find({'$ne': {status: CONFIGS.REMOTE_TRANSACTION_STATUS.PENDING}}, function (error, transactions) {
+            if (!transactions){
+                resolve([]);
+                return;
+            }
+            resolve(transactions);
+        })
+    });
+}
+
+async function BuildTransactionRequest(srcAddress, dstAddress, amount) {
+    let freeTransactions = await GetFreeRemoteTransactions();
+    let useResources = [];
+    let remainingAmount = amount;
+    for (let index in freeTransactions) {
+        let freeTransaction = freeTransactions[index];
+        useResources.push(freeTransaction);
+        remainingAmount -= freeTransaction.amount;
+        if (remainingAmount <= 0)
+            break;
+    }
+
+    let outputs = [
+        {
+            address: dstAddress,
+            value: amount
+        }
+    ];
+
+    if (remainingAmount < 0) {
+        outputs.push({
+            address: srcAddress,
+            value: -remainingAmount
+        });
+    }
+
+    for (let index in useResources) {
+        let resource = useResources[index];
+        let address = resource.dst_addr;
+
+        // TODO get key by this address
+        // TODO adjust hash and index
+        // TODO return a array like demo in routes/apis.js ('CREATE TRANSACTION REQUEST')
+    }
 }

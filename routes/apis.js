@@ -55,7 +55,7 @@ router.get('/',async function (req, res, next) {
     //     }
     // ];
     //
-    // let request = TransactionService.CreateBlockChainTransactionRequest(inputs, outputs);
+    // let request = TransactionService.SignTransactionRequest(inputs, outputs);
 
     // $x = await TransactionService.CreateLocalTransaction({
     //     src_address: '888',
