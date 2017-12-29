@@ -19,7 +19,7 @@ module.exports.GetRemoteTransactionById = function (id) {
 
 module.exports.CreateLocalTransaction = function (newLocalTx) {
     return new Promise(resolve => {
-        LocalTransaction.save(function (err, tx) {
+        newLocalTx.save(function (err, tx) {
             resolve(tx);
         });
     });
@@ -27,7 +27,7 @@ module.exports.CreateLocalTransaction = function (newLocalTx) {
 
 module.exports.CreateRemoteTransaction = function (newRemoteTx) {
     return new Promise(resolve => {
-        RemoteTransaction.save(function (err, tx) {
+        newRemoteTx.save(function (err, tx) {
             resolve(tx);
         });
     });
@@ -35,16 +35,16 @@ module.exports.CreateRemoteTransaction = function (newRemoteTx) {
 
 module.exports.UpdateLocalTransaction = function (localTx) {
     return new Promise(resolve => {
-        LocalTransaction.save(function (err, localTx) {
-            resolve(localTx);
+        localTx.save(function (err, tx) {
+            resolve(tx);
         });
     });
 };
 
 module.exports.UpdateRemoteTransaction = function (remoteTx) {
     return new Promise(resolve => {
-        remoteTransaction.save(function (err, remoteTx) {
-            resolve(remoteTx);
+        remoteTx.save(function (err, tx) {
+            resolve(tx);
         });
     });
 };
