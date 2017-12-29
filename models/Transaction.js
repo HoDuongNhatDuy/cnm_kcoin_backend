@@ -10,7 +10,6 @@ let LocalTransactionSchema = new mongoose.Schema(
     }
 );
 
-let LocalTransaction = module.exports = mongoose.model('LocalTransaction', LocalTransactionSchema, 'local-transactions');
 
 let RemoteTransactionSchema = new mongoose.Schema(
     {
@@ -22,4 +21,7 @@ let RemoteTransactionSchema = new mongoose.Schema(
     }
 );
 
-let RemoteTransaction = module.exports = mongoose.model('RemoteTransaction', RemoteTransactionSchema, 'remote-transactions');
+module.exports = {
+    LocalTransaction: mongoose.model('RemoteTransaction', RemoteTransactionSchema),
+    RemoteTransaction: mongoose.model('RemoteTransaction', RemoteTransactionSchema)
+} 
