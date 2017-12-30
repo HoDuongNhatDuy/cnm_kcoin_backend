@@ -168,21 +168,26 @@ module.exports.SignTransactionRequest = function (inputs, outputs) {
     return bountyTransaction;
 };
 
-function GetLocalTransactions (address, sort, offset, limit) {
+function GetLocalTransactions (address, sort = null, offset = 0, limit = 10) {
     return new Promise(resolve => {
-        LocalTransaction.find({
+        let query = LocalTransaction.find({
             $or: [
                 {src_addr: address},
                 {dst_addr: address},
             ],
             status: {'$ne': 'invalid' }
-        }, function (error, transactions) {
+        }).skip(offset).limit(limit);
+
+        if (sort) {
+            query = query.sort({created_at: 'descending'});
+        }
+
+        query.exec(function (error, transactions) {
             if (!transactions) {
                 resolve([]);
                 return;
             }
-            if(!sort) transactions.sort({created_at: 'descending'});
-            resolve(transactions.offset(offset).limit(limit));
+            resolve(transactions);
         })
     });
 }

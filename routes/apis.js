@@ -1,9 +1,8 @@
 let express = require('express');
 let router = express.Router();
-// let jwt = require('express-jwt');
-// let jwks = require('jwks-rsa');
-let CONFIGS = require('../configs');
 let AuthController = require('../controllers/apis/AuthController');
+let DashboardController = require('../controllers/apis/DashboardController');
+let TransactionController = require('../controllers/apis/TransactionController');
 let TransactionService = require('../services/apis/TransactionService');
 
 // const jwtCheck = jwt({
@@ -86,30 +85,13 @@ function authCheck(req, res, next) {
 
 }
 
-router.get('/get-dashboard-info', async function (req, res, next) {
-    let address = reg.params.address;
-    $available = await TransactionService.GetBalance(address, 'available');
-    $actual = await TransactionService.GetBalance(address, 'actual');
-    $recent = await TransactionService.GetLocalTransactions(address, true, 0, 10);
-    if (!$actual || !$available) res.status(500);
-    res.json({
-        available: $available,
-        actual: $actual,
-        transactions: $recent
-    });
-});
-
-router.get('/get-transactions-bounded', async function (req, res, next) {
-    $result = await TransactionService.GetLocalTransactions(req.params.address, null, 
-        req.params.offset, req.params.limit);
-    res.json({
-        transactions: $result
-    });
-});
 
 router.post('/register', AuthController.Register);
 router.get('/activate/:userId', AuthController.Active);
 router.post('/login', AuthController.Login);
 router.post('/send-activate-email', AuthController.SendActiveEmail);
+
+router.get('/get-dashboard-info/:address', DashboardController.GetDashboardInfo);
+router.get('/get-transactions/:address', TransactionController.GetTransactions);
 
 module.exports = router;
