@@ -6,7 +6,8 @@ let RemoteTransactionSchema = new mongoose.Schema(
         index: {type: Number},
         dst_addr: {type: String},
         amount: {type: Number},
-        status: {type: String}
+        status: {type: String},
+        created_ad: {type: String}
     }
 );
 

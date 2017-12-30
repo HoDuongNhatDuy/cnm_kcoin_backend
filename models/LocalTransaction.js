@@ -6,7 +6,8 @@ let LocalTransactionSchema = new mongoose.Schema(
         dst_addr: {type: String, required: true},
         amount: {type: Number},
         remaining_amount: {type: Number},
-        status: {type: String}
+        status: {type: String},
+        created_ad: {type: String}
     }
 );
 

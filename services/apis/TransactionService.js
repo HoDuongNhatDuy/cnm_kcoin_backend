@@ -20,9 +20,12 @@ module.exports.GetRemoteTransactionById = function (id) {
     });
 };
 
+module.exports
+
 
 module.exports.CreateLocalTransaction = function (newLocalTx) {
     return new Promise(resolve => {
+        newLocalTx.created_at = Date.now();
         let newObj = new LocalTransaction(newLocalTx);
         newObj.save(function (err, tx) {
             resolve(tx);
@@ -32,6 +35,7 @@ module.exports.CreateLocalTransaction = function (newLocalTx) {
 
 module.exports.CreateRemoteTransaction = function (newRemoteTx) {
     return new Promise(resolve => {
+        newRemoteTx.created_at = Date.now();
         let newObj = new RemoteTransaction(newRemoteTx);
         newObj.save(function (err, tx) {
             resolve(tx);
@@ -164,7 +168,7 @@ module.exports.SignTransactionRequest = function (inputs, outputs) {
     return bountyTransaction;
 };
 
-function GetLocalTransactions (address) {
+function GetLocalTransactions (address, sort = null, offset = 0, limit = 10) {
     return new Promise(resolve => {
         LocalTransaction.find({
             $or: [
@@ -177,7 +181,8 @@ function GetLocalTransactions (address) {
                 resolve([]);
                 return;
             }
-            resolve(transactions);
+            if(!sort) transactions.sort({created_at: 'descending'});
+            resolve(transactions.offset(offset).limit(limit));
         })
     });
 }
