@@ -10,7 +10,7 @@ module.exports = {
         PORT: 2525,
         SENDER: 'smtpusername1@mail.smtp2go.com',
         AUTH: {
-            USER: 'smtpusername1@mail.smtp2go.com',
+            USER: 'smtpusername1',
             PASS: 'd201c3h3c3VtdDAw'
         }
     },

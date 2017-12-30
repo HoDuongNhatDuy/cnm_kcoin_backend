@@ -61,7 +61,7 @@ exports.SendActiveEmail = async function (req, res, next) {
             from: `KCoin <${CONFIGS.EMAIL.SENDER}>`,
             to: email, // list of receivers
             subject: 'User Activation', // Subject line
-            html: `<b><a href="${redirectURL}${userId}">Active your account</a></b>` // html body
+            html: `<b><a href="${redirectURL}/${userId}">Active your account</a></b>` // html body
         };
         console.log(mailOptions);
         let sendEmailResult = await EmailService.SendEmail(mailOptions);
@@ -133,7 +133,7 @@ exports.Login = async function (req, res, next) {
         if (user.is_active == 0) {
             res.json({
                 status: 0,
-                message: 'This use has not been activated yet'
+                message: 'This user has not been activated yet'
             });
             return;
         }
@@ -148,7 +148,7 @@ exports.Login = async function (req, res, next) {
         }
 
         let token         = UserService.GenerateToken();
-        let expiredAt     = Date.now();
+        let expiredAt     = Date.now() + 60 * 60 * 1000;
         user.access_token = token;
         user.expired_at   = expiredAt;
         user.save();
@@ -157,7 +157,9 @@ exports.Login = async function (req, res, next) {
             message: 'Login successfully',
             data: {
                 access_token: token,
-                expirted_at: expiredAt
+                expired_at: expiredAt,
+                email: email,
+                address: user.address
             }
         });
     }
