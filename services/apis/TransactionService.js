@@ -168,7 +168,7 @@ module.exports.SignTransactionRequest = function (inputs, outputs) {
     return bountyTransaction;
 };
 
-function GetLocalTransactions (address, sort = null, offset = 0, limit = 10) {
+function GetLocalTransactions (address, sort, offset, limit) {
     return new Promise(resolve => {
         LocalTransaction.find({
             $or: [
@@ -187,8 +187,8 @@ function GetLocalTransactions (address, sort = null, offset = 0, limit = 10) {
     });
 }
 
-module.exports.GetLocalTransactions = async function (address) {
-    return await GetLocalTransactions(address);
+module.exports.GetLocalTransactions = async function (address, sort = null, offset = 0, limit = 10) {
+    return await GetLocalTransactions(address, sort, offset, limit);
 };
 
 /**
