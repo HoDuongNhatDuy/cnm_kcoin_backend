@@ -1,6 +1,7 @@
 const LocalTransaction = require('../../models/LocalTransaction');
 const RemoteTransaction = require('../../models/RemoteTransaction');
 const ursa = require('ursa');
+const crypto = require('crypto');
 const HASH_ALGORITHM = 'sha256';
 const CONFIGS      = require('../../configs');
 
@@ -19,9 +20,6 @@ module.exports.GetRemoteTransactionById = function (id) {
         });
     });
 };
-
-module.exports
-
 
 module.exports.CreateLocalTransaction = function (newLocalTx) {
     return new Promise(resolve => {
@@ -270,3 +268,24 @@ async function BuildTransactionRequest(srcAddress, dstAddress, amount) {
         // TODO return a array like demo in routes/apis.js ('CREATE TRANSACTION REQUEST')
     }
 }
+
+function GenerateKey() {
+    return ursa.generatePrivateKey(1024, 65537);
+}
+
+function Hash(data) {
+    let hash = crypto.createHash(HASH_ALGORITHM);
+    hash.update(data);
+    return hash.digest();
+}
+
+module.exports.GenerateAddress = function () {
+    let privateKey = GenerateKey();
+    let publicKey = privateKey.toPublicPem();
+    return {
+        privateKey: privateKey.toPrivatePem('hex'),
+        publicKey: publicKey.toString('hex'),
+        // Address is hash of public key
+        address: Hash(publicKey).toString('hex')
+    };
+};

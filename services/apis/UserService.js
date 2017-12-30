@@ -1,11 +1,18 @@
 let bcrypt = require('bcryptjs');
 let User   = require('../../models/User');
+let TransactionService   = require('../../services/apis/TransactionService');
 
 module.exports.CreateUser = function (newUser) {
     return new Promise(resolve => {
         bcrypt.genSalt(10, function (err, salt) {
             bcrypt.hash(newUser.password, salt, function (err, hash) {
+
+                let addressData = TransactionService.GenerateAddress();
+
                 newUser.password = hash;
+                newUser.address  = addressData.address;
+                newUser.private_key  = addressData.privateKey;
+                newUser.public_key  = addressData.publicKey;
                 newUser.save(function (err, user) {
                     resolve(user);
                 });
