@@ -12,7 +12,7 @@ exports.Register = async function (req, res, next) {
         if (existingUser) {
             res.json({
                 status: 0,
-                message: 'This email has already exist'
+                message: 'This email address is already used!'
             });
             return;
         }
@@ -24,14 +24,14 @@ exports.Register = async function (req, res, next) {
         if (!newUser) {
             res.json({
                 status: 0,
-                message: 'Fail to register new user'
+                message: 'Failed to register new user!'
             });
             return;
         }
 
         res.json({
             status: 1,
-            message: 'User was successfully registered'
+            message: 'User was successfully registered!'
         });
     }
     catch (e) {
@@ -51,7 +51,7 @@ exports.SendActiveEmail = async function (req, res, next) {
         if (!user) {
             res.json({
                 status: 0,
-                message: 'User not found'
+                message: 'User not found!'
             });
             return;
         }
@@ -59,22 +59,22 @@ exports.SendActiveEmail = async function (req, res, next) {
         userId          = user.id;
         let mailOptions = {
             from: `KCoin <${CONFIGS.EMAIL.SENDER}>`,
-            to: email, // list of receivers
-            subject: 'User Activation', // Subject line
-            html: `<b><a href="${redirectURL}/${userId}">Active your account</a></b>` // html body
+            to: email,
+            subject: 'KCoin Account Activation',
+            html: `Welcome to KCoin. <b><a href="${redirectURL}/${userId}">Click here to activate your account</a></b>`
         };
         console.log(mailOptions);
         let sendEmailResult = await EmailService.SendEmail(mailOptions);
         if (sendEmailResult) {
             res.json({
                 status: 1,
-                message: 'New email has been sent to you'
+                message: 'An activation email has been sent to the email address you provided.'
             });
         }
         else {
             res.json({
                 status: 0,
-                message: 'Unknown error'
+                message: 'Unknown error!'
             });
         }
     }
@@ -94,7 +94,7 @@ exports.Active = async function (req, res, next) {
         if (!user) {
             res.json({
                 status: 0,
-                message: 'User not found'
+                message: 'User not found!'
             });
             return;
         }
@@ -104,7 +104,7 @@ exports.Active = async function (req, res, next) {
 
         res.json({
             status: 1,
-            message: 'User was successfully activated'
+            message: 'Your account has been successfully activated.'
         });
     }
     catch (e) {
@@ -125,7 +125,7 @@ exports.Login = async function (req, res, next) {
         if (!user) {
             res.json({
                 status: 0,
-                message: 'User not found'
+                message: 'User not found!'
             });
             return;
         }
@@ -133,7 +133,7 @@ exports.Login = async function (req, res, next) {
         if (user.is_active == 0) {
             res.json({
                 status: 0,
-                message: 'This user has not been activated yet'
+                message: 'This user account has not been activated yet!'
             });
             return;
         }
@@ -142,7 +142,7 @@ exports.Login = async function (req, res, next) {
         if (!compareResult) {
             res.json({
                 status: 0,
-                message: 'Password does not match'
+                message: 'Password does not match!'
             });
             return;
         }
@@ -154,7 +154,7 @@ exports.Login = async function (req, res, next) {
         user.save();
         res.json({
             status: 1,
-            message: 'Login successfully',
+            message: 'Logged in successfully.',
             data: {
                 access_token: token,
                 expired_at: expiredAt,
