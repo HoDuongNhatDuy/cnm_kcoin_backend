@@ -188,3 +188,28 @@ exports.ConfirmTransaction = async function (req, res, next) {
         });
     }
 };
+
+exports.DeleteTransaction = async function (req, res, next) {
+    try {
+        let transactionId = req.params.transactionId;
+        let deleteResult = await TransactionService.DeleteLocalTransaction(transactionId);
+        if (!deleteResult) {
+            res.json({
+                status: 0,
+                message: 'Unknown error'
+            });
+            return
+        }
+
+        res.json({
+            status: 1,
+            message: 'Transaction has been deleted'
+        });
+    }
+    catch (e) {
+        res.json({
+            status: 0,
+            message: e.message
+        });
+    }
+};

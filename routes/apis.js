@@ -82,7 +82,7 @@ router.get('/', async function (req, res, next) {
 // });
 
 function authCheck(req, res, next) {
-
+    return true;
 }
 
 
@@ -96,5 +96,6 @@ router.get('/get-transactions/:address', TransactionController.GetTransactions);
 router.post('/create-transaction', TransactionController.CreateTransaction);
 router.get('/send-create-transaction-confirmation-email/:transactionId', TransactionController.SendCreateTransactionConfirmationEmail);
 router.post('/confirm-transaction', TransactionController.ConfirmTransaction);
+router.get('/delete-transaction/:transactionId', TransactionController.DeleteTransaction);
 
 module.exports = router;

@@ -50,6 +50,14 @@ module.exports.UpdateLocalTransaction = function (localTx) {
     });
 };
 
+module.exports.DeleteLocalTransaction = function (transactionId) {
+    return new Promise(resolve => {
+        LocalTransaction.find({_id: transactionId}).remove(function (err) {
+            resolve(!err);
+        });
+    });
+};
+
 module.exports.UpdateRemoteTransaction = function (remoteTx) {
     return new Promise(resolve => {
         remoteTx.save(function (err, tx) {
@@ -172,9 +180,14 @@ function GetLocalTransactions (address, sort = null, offset = 0, limit = 10) {
         let query = LocalTransaction.find({
             $or: [
                 {src_addr: address},
-                {dst_addr: address},
+                {
+                    $and: [
+                        {dst_addr: address},
+                        {status: {'$ne': CONFIGS.LOCAL_TRANSACTION_STATUS.INIT}}
+                    ]
+                }
             ],
-            status: {'$ne': CONFIGS.LOCAL_TRANSACTION_STATUS.INVALID }
+            status: {$ne: CONFIGS.LOCAL_TRANSACTION_STATUS.INVALID }
         }).skip(offset).limit(limit);
 
         if (sort) {
