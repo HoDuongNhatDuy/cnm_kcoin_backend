@@ -93,5 +93,6 @@ router.post('/send-activate-email', AuthController.SendActiveEmail);
 
 router.get('/get-dashboard-info/:address', DashboardController.GetDashboardInfo);
 router.get('/get-transactions/:address', TransactionController.GetTransactions);
+router.post('/create-transaction', TransactionController.CreateTransaction);
 
 module.exports = router;

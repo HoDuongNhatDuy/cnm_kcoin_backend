@@ -1,5 +1,6 @@
 const LocalTransaction = require('../../models/LocalTransaction');
 const RemoteTransaction = require('../../models/RemoteTransaction');
+const UserService = require('../../services/apis/UserService');
 const ursa = require('ursa');
 const crypto = require('crypto');
 const HASH_ALGORITHM = 'sha256';
@@ -133,7 +134,7 @@ function ToBinary(transaction, withoutUnlockScript) {
         ....
     ]
  */
-module.exports.SignTransactionRequest = function (inputs, outputs) {
+function SignTransactionRequest (inputs, outputs) {
     // Generate transactions
     let bountyTransaction = {
         version: 1,
@@ -164,7 +165,7 @@ module.exports.SignTransactionRequest = function (inputs, outputs) {
     SignTransaction(bountyTransaction, keys);
 
     return bountyTransaction;
-};
+}
 
 function GetLocalTransactions (address, sort = null, offset = 0, limit = 10) {
     return new Promise(resolve => {
@@ -259,15 +260,35 @@ async function BuildTransactionRequest(srcAddress, dstAddress, amount) {
         });
     }
 
+    let inputs = [];
     for (let index in useResources) {
         let resource = useResources[index];
         let address = resource.dst_addr;
 
-        // TODO get key by this address
-        // TODO adjust hash and index
-        // TODO return a array like demo in routes/apis.js ('CREATE TRANSACTION REQUEST')
+        let user = await UserService.GetUserByAddress(address);
+        let key = {
+            privateKey: user.private_key,
+            publicKey: user.public_key,
+        };
+
+        let source = {
+            referencedOutputHash: resource.src_hash,
+            referencedOutputIndex: resource.index
+        };
+
+        inputs.push({source, key});
     }
+
+    return {inputs, outputs}
 }
+
+module.exports.SendTransactionRequest = async function (srcAddress, dstAddress, amount) {
+    let requestData = await BuildTransactionRequest(srcAddress, dstAddress, amount);
+    let signedRequest = SignTransactionRequest(requestData.inputs, requestData.outputs);
+
+    console.log(signedRequest);
+    // TODO send request
+};
 
 function GenerateKey() {
     return ursa.generatePrivateKey(1024, 65537);

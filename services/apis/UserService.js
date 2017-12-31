@@ -60,6 +60,14 @@ module.exports.GetUserById = function (id) {
     });
 };
 
+module.exports.GetUserByAddress = function (address) {
+    return new Promise(resolve => {
+        User.findOne({address}, function (error, user) {
+            resolve(user);
+        });
+    });
+};
+
 module.exports.ComparePassword = function (candidatePassword, hash) {
     return new Promise(resolve => {
         bcrypt.compare(candidatePassword, hash, function (err, isMatch) {
