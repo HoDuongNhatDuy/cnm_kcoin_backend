@@ -174,7 +174,7 @@ function GetLocalTransactions (address, sort = null, offset = 0, limit = 10) {
                 {src_addr: address},
                 {dst_addr: address},
             ],
-            status: {'$ne': 'invalid' }
+            status: {'$ne': CONFIGS.LOCAL_TRANSACTION_STATUS.INVALID }
         }).skip(offset).limit(limit);
 
         if (sort) {
@@ -205,7 +205,7 @@ module.exports.GetBalance = async function(address, type = CONFIGS.BALANCE_TYPE.
     for (let index in transactions) {
         let transaction = transactions[index];
 
-        if (transaction.status === CONFIGS.LOCAL_TRANSACTION_STATUS.INVALID)
+        if (transaction.status === CONFIGS.LOCAL_TRANSACTION_STATUS.INVALID || transaction.status === CONFIGS.LOCAL_TRANSACTION_STATUS.INIT)
             continue;
 
         if (type === CONFIGS.BALANCE_TYPE.ACTUAL && transaction.status !== CONFIGS.LOCAL_TRANSACTION_STATUS.DONE)
@@ -309,4 +309,14 @@ module.exports.GenerateAddress = function () {
         // Address is hash of public key
         address: Hash(publicKey).toString('hex')
     };
+};
+
+/**
+ * @return {string}
+ */
+module.exports.Generate2FACode = function () {
+    let length = 6;
+    let str = "";
+    for ( ; str.length < length; str += Math.random().toString( 36 ).substr( 2 ) );
+    return str.substr( 0, length ).toUpperCase();
 };

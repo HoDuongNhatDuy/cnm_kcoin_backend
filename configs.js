@@ -17,7 +17,8 @@ module.exports = {
     LOCAL_TRANSACTION_STATUS: {
         PENDING: 'pending',
         DONE: 'done',
-        INVALID: 'invalid'
+        INVALID: 'invalid',
+        INIT: 'init'
     },
     REMOTE_TRANSACTION_STATUS: {
         PENDING: 'USED',
