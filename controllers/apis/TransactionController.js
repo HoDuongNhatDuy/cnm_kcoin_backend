@@ -49,6 +49,17 @@ exports.CreateTransaction = async function (req, res, next) {
             return;
         }
 
+        let dstUser = UserService.GetUserByAddress(dstAddress);
+        if (!dstUser) { // is send money to external transaction
+            let availableBalance = await TransactionService.GetAvailableBalanceOfServer();
+            if (availableBalance < amount){
+                res.json({
+                    status: 0,
+                    message: 'Server busy... please try after 10 minutes!'
+                });
+                return;
+            }
+        }
 
         let localTransactionData = {
             src_addr: srcAddress,
@@ -154,13 +165,21 @@ exports.ConfirmTransaction = async function (req, res, next) {
         }
 
         let dstAddress = transaction.dst_addr;
-        let user = UserService.GetUserByAddress(dstAddress);
+        let srcAddress = transaction.src_addr;
+        let amount     = transaction.amount;
+        let user = await UserService.GetUserByAddress(dstAddress);
 
         if (!user) { // send money to external system
             transaction.remaining_amount = transaction.amount;
             transaction.status = CONFIGS.LOCAL_TRANSACTION_STATUS.PENDING;
 
-            TransactionService.SendTransactionRequest(srcAddress, dstAddress, amount);
+            let sendRequestResult = TransactionService.SendTransactionRequest(srcAddress, dstAddress, amount);
+            if (!sendRequestResult) {
+                res.json({
+                    status: 0,
+                    message: 'Failed to send create transaction request'
+                })
+            }
         }
         else {
             transaction.remaining_amount = 0;
@@ -204,6 +223,50 @@ exports.DeleteTransaction = async function (req, res, next) {
         res.json({
             status: 1,
             message: 'Transaction has been deleted.'
+        });
+    }
+    catch (e) {
+        res.json({
+            status: 0,
+            message: e.message
+        });
+    }
+};
+
+exports.SyncLatestBlocks = async function (req, res, next) {
+    try {
+        blocks = await TransactionService.GetLatestBlocks();
+        for (let index in blocks) {
+            let block = blocks[index];
+            let transactions = block.transactions;
+            TransactionService.SyncTransactions(transactions);
+        }
+        res.json({
+            status: 1,
+            message: 'Synced successfully',
+            data: blocks
+        });
+    }
+    catch (e) {
+        res.json({
+            status: 0,
+            message: e.message
+        });
+    }
+};
+
+exports.SyncBlock = async function (req, res, next) {
+    try {
+        let blockId = req.params.blockId;
+        let isInitAction = req.query.init ? true : false;
+
+        block = await TransactionService.GetBlock(blockId);
+        let transactions = block.transactions;
+        TransactionService.SyncTransactions(transactions, isInitAction);
+        res.json({
+            status: 1,
+            message: 'Synced successfully',
+            data: transactions
         });
     }
     catch (e) {

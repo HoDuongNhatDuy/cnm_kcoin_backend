@@ -4,6 +4,7 @@ let AuthController = require('../controllers/apis/AuthController');
 let DashboardController = require('../controllers/apis/DashboardController');
 let TransactionController = require('../controllers/apis/TransactionController');
 let TransactionService = require('../services/apis/TransactionService');
+let UtilService = require('../services/UtilService');
 
 // const jwtCheck = jwt({
 //     secret: jwks.expressJwtSecret({
@@ -70,7 +71,6 @@ router.get('/', async function (req, res, next) {
     res.json({
         status: 1,
         message: 'Welcome to KCoin API',
-        // data: $x
     });
 });
 
@@ -97,5 +97,7 @@ router.post('/create-transaction', TransactionController.CreateTransaction);
 router.get('/send-create-transaction-confirmation-email/:transactionId', TransactionController.SendCreateTransactionConfirmationEmail);
 router.post('/confirm-transaction', TransactionController.ConfirmTransaction);
 router.get('/delete-transaction/:transactionId', TransactionController.DeleteTransaction);
+router.get('/sync-latest-blocks', TransactionController.SyncLatestBlocks);
+router.get('/sync-block/:blockId', TransactionController.SyncBlock);
 
 module.exports = router;

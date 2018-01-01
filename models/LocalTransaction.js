@@ -2,7 +2,7 @@ let mongoose = require('mongoose');
 
 let LocalTransactionSchema = new mongoose.Schema(
     {
-        src_addr: {type: String, required: true},
+        src_addr: {type: String},
         dst_addr: {type: String, required: true},
         amount: {type: Number},
         remaining_amount: {type: Number},

@@ -1,6 +1,7 @@
 const LocalTransaction = require('../../models/LocalTransaction');
 const RemoteTransaction = require('../../models/RemoteTransaction');
 const UserService = require('../../services/apis/UserService');
+const UtilService = require('../../services/UtilService');
 const ursa = require('ursa');
 const crypto = require('crypto');
 const HASH_ALGORITHM = 'sha256';
@@ -14,6 +15,18 @@ module.exports.GetLocalTransactionById = function (id) {
     });
 };
 
+function GetPendingTransactionByDstAddress(dstAddress) {
+    return new Promise(resolve => {
+        LocalTransaction.findOne({dst_addr: dstAddress, status: CONFIGS.LOCAL_TRANSACTION_STATUS.PENDING}, function (error, tx) {
+            resolve(tx);
+        });
+    });
+}
+
+module.exports.GetPendingTransactionByDstAddress = function (dstAddress) {
+   return GetPendingTransactionByDstAddress(dstAddress);
+};
+
 module.exports.GetRemoteTransactionById = function (id) {
     return new Promise(resolve => {
         RemoteTransaction.findById(id, function (error, tx) {
@@ -22,7 +35,7 @@ module.exports.GetRemoteTransactionById = function (id) {
     });
 };
 
-module.exports.CreateLocalTransaction = function (newLocalTx) {
+function CreateLocalTransaction(newLocalTx) {
     return new Promise(resolve => {
         newLocalTx.created_at = Date.now();
         let newObj = new LocalTransaction(newLocalTx);
@@ -30,9 +43,13 @@ module.exports.CreateLocalTransaction = function (newLocalTx) {
             resolve(tx);
         });
     });
+}
+
+module.exports.CreateLocalTransaction = function (newLocalTx) {
+   return CreateLocalTransaction(newLocalTx)
 };
 
-module.exports.CreateRemoteTransaction = function (newRemoteTx) {
+function CreateRemoteTransaction(newRemoteTx) {
     return new Promise(resolve => {
         newRemoteTx.created_at = Date.now();
         let newObj = new RemoteTransaction(newRemoteTx);
@@ -40,14 +57,30 @@ module.exports.CreateRemoteTransaction = function (newRemoteTx) {
             resolve(tx);
         });
     });
+}
+
+function GetRemoteTransactionByHashIndex(hash, index) {
+    return new Promise(resolve => {
+        RemoteTransaction.findOne({src_hash: hash, index}, function (error, transaction) {
+            resolve(transaction);
+        })
+    });
+}
+
+module.exports.CreateRemoteTransaction = function (newRemoteTx) {
+   return CreateLocalTransaction(newRemoteTx);
 };
 
-module.exports.UpdateLocalTransaction = function (localTx) {
+function UpdateLocalTransaction(localTx) {
     return new Promise(resolve => {
         localTx.save(function (err, tx) {
             resolve(tx);
         });
     });
+}
+
+module.exports.UpdateLocalTransaction = function (localTx) {
+   return UpdateLocalTransaction(localTx);
 };
 
 module.exports.DeleteLocalTransaction = function (transactionId) {
@@ -237,7 +270,7 @@ module.exports.GetBalance = async function(address, type = CONFIGS.BALANCE_TYPE.
 
 function GetFreeRemoteTransactions() {
     return new Promise(resolve => {
-        RemoteTransaction.find({'$ne': {status: CONFIGS.REMOTE_TRANSACTION_STATUS.PENDING}}, function (error, transactions) {
+        RemoteTransaction.find({status: CONFIGS.REMOTE_TRANSACTION_STATUS.FREE}, function (error, transactions) {
             if (!transactions){
                 resolve([]);
                 return;
@@ -295,12 +328,22 @@ async function BuildTransactionRequest(srcAddress, dstAddress, amount) {
     return {inputs, outputs}
 }
 
+/**
+ * @return {boolean}
+ */
 module.exports.SendTransactionRequest = async function (srcAddress, dstAddress, amount) {
     let requestData = await BuildTransactionRequest(srcAddress, dstAddress, amount);
     let signedRequest = SignTransactionRequest(requestData.inputs, requestData.outputs);
 
     console.log(signedRequest);
-    // TODO send request
+
+    let url = CONFIGS.BLOCKCHAIN_API_URL + '/transactions';
+    let requestResult = await UtilService.SendPostRequest(url, signedRequest);
+    console.log(requestResult);
+    if (requestResult.code === 'InvalidContent') {
+        return false;
+    }
+    return true;
 };
 
 function GenerateKey() {
@@ -332,4 +375,77 @@ module.exports.Generate2FACode = function () {
     let str = "";
     for ( ; str.length < length; str += Math.random().toString( 36 ).substr( 2 ) );
     return str.substr( 0, length ).toUpperCase();
+};
+
+module.exports.GetLatestBlocks = async function (limit = 10) {
+    let url = CONFIGS.BLOCKCHAIN_API_URL + '/blocks/?order=-1&limit=10';
+    let blocks = await UtilService.SendGetRequest(url);
+    return blocks;
+};
+
+module.exports.GetBlock = async function (blockId) {
+    let url = CONFIGS.BLOCKCHAIN_API_URL + `/blocks/${blockId}`;
+    let block = await UtilService.SendGetRequest(url);
+    return block;
+};
+
+module.exports.SyncTransactions = async function (transactions, isInitAction = false) {
+    for (let index in transactions) {
+        let transaction = transactions[index];
+        let outputs = transaction.outputs;
+        let hash = transaction.hash;
+        for (let outputIndex in outputs) {
+            let output = outputs[outputIndex];
+            let value = output.value;
+            let lockScript = output.lockScript;
+            let dstAddress = lockScript.split(" ")[1];
+
+            // confirm pending transaction
+            let pendingTransaction = await GetPendingTransactionByDstAddress(dstAddress);
+            if (pendingTransaction) {
+                pendingTransaction.remaining_amount = pendingTransaction.amount - value;
+                pendingTransaction.status           = CONFIGS.LOCAL_TRANSACTION_STATUS.DONE;
+
+                let updatedTransaction = await UpdateLocalTransaction(pendingTransaction);
+            }
+
+            // sync new transaction
+            let user = await UserService.GetUserByAddress(dstAddress);
+            let existingRemoteTransaction = await GetRemoteTransactionByHashIndex(hash, outputIndex);
+            if (!existingRemoteTransaction && user && (isInitAction || outputs.length > 1)) { // outputs > 1 => it has refund amount => we don't use it
+
+                let remoteRemoteTransactionData = {
+                    src_hash: hash,
+                    index: outputIndex,
+                    dst_addr: dstAddress,
+                    amount: value,
+                    status: CONFIGS.REMOTE_TRANSACTION_STATUS.FREE,
+                };
+                let newRemoteTransaction = await CreateRemoteTransaction(remoteRemoteTransactionData);
+
+                let localTransactionData = {
+                    src_addr: '',
+                    dst_addr: dstAddress,
+                    amount: value,
+                    remaining_amount: 0,
+                    status: CONFIGS.LOCAL_TRANSACTION_STATUS.DONE,
+                };
+                let newLocalTransaction = await CreateLocalTransaction(localTransactionData);
+            }
+        }
+    }
+};
+
+/**
+ * @return {number}
+ */
+module.exports.GetAvailableBalanceOfServer = async function () {
+    let freeRemoteTransactions = await GetFreeRemoteTransactions();
+    let balance = 0;
+    for (let index in freeRemoteTransactions){
+        let freeRemoteTransaction = freeRemoteTransactions[index];
+        balance += freeRemoteTransaction.amount;
+    }
+
+    return balance;
 };

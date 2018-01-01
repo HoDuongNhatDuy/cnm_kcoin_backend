@@ -1,10 +1,6 @@
 module.exports = {
-    MONGO_DB_CONNECTION_STRING: 'mongodb://localhost:27017/kcoin_db',
-    // JWT: {
-    //     JWKS_URI: "https://duyho.auth0.com/.well-known/jwks.json",
-    //     AUDIENCE: "https://duyho.kcoin.com",
-    //     ISSUER: "https://duyho.auth0.com/"
-    // }
+    MONGO_DB_CONNECTION_STRING: 'mongodb://localhost:27017/kcoin_db_test',
+    BLOCKCHAIN_API_URL: 'https://api.kcoin.club',
     EMAIL: {
         HOST: 'mail.smtp2go.com',
         PORT: 2525,
@@ -21,8 +17,8 @@ module.exports = {
         INIT: 'init'
     },
     REMOTE_TRANSACTION_STATUS: {
-        PENDING: 'USED',
-        DONE: 'FREE',
+        USED: 'used',
+        FREE: 'free',
     },
     BALANCE_TYPE: {
         AVAILABLE: 'available',
