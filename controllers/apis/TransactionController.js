@@ -34,7 +34,7 @@ exports.CreateTransaction = async function (req, res, next) {
         if (!srcAddress || !dstAddress) {
             res.json({
                 status: 0,
-                message: 'Invalid data'
+                message: 'Invalid data!'
             });
             return;
         }
@@ -44,7 +44,7 @@ exports.CreateTransaction = async function (req, res, next) {
         if (balance < amount){
             res.json({
                 status: 0,
-                message: 'Balance is insufficient for a withdrawal'
+                message: 'Balance is insufficient for a withdrawal!'
             });
             return;
         }
@@ -62,14 +62,14 @@ exports.CreateTransaction = async function (req, res, next) {
         if (!newTransaction) {
             res.json({
                 status: 0,
-                message: 'Failed to create new transaction'
+                message: 'Failed to create new transaction!'
             });
             return;
         }
 
         res.json({
             status: 1,
-            message: 'New transaction has successfully created',
+            message: 'New transaction successfully created.',
             data: {
                 transaction_id: newTransaction.id
             }
@@ -90,7 +90,7 @@ exports.SendCreateTransactionConfirmationEmail = async function (req, res, next)
         if (!transaction) {
             res.json({
                 status: 0,
-                message: 'Transaction not found'
+                message: 'Transaction not found!'
             });
             return;
         }
@@ -106,8 +106,8 @@ exports.SendCreateTransactionConfirmationEmail = async function (req, res, next)
         let mailOptions = {
             from: `KCoin <${CONFIGS.EMAIL.SENDER}>`,
             to: email,
-            subject: 'KCoin - Create new transaction confirmation',
-            html: `Your 2-FA code is:<b>${twoFACode}</b>`
+            subject: 'KCoin - Confirm new transaction',
+            html: `Your verification code is: <b>${twoFACode}</b>`
         };
         let sendEmailResult = await EmailService.SendEmail(mailOptions);
         if (sendEmailResult) {
@@ -140,7 +140,7 @@ exports.ConfirmTransaction = async function (req, res, next) {
         if (!transaction) {
             res.json({
                 status: 0,
-                message: 'Transaction not found'
+                message: 'Transaction not found!'
             });
             return;
         }
@@ -148,7 +148,7 @@ exports.ConfirmTransaction = async function (req, res, next) {
         if (transaction.two_fa_code !== code) {
             res.json({
                 status: 0,
-                message: 'Invalid 2-FA code'
+                message: 'Invalid verification code!'
             });
             return;
         }
@@ -178,7 +178,7 @@ exports.ConfirmTransaction = async function (req, res, next) {
 
         res.json({
             status: 1,
-            message: 'Your new transaction has been confirmed successfully'
+            message: 'Your new transaction has been confirmed successfully.'
         });
     }
     catch (e) {
@@ -196,14 +196,14 @@ exports.DeleteTransaction = async function (req, res, next) {
         if (!deleteResult) {
             res.json({
                 status: 0,
-                message: 'Unknown error'
+                message: 'Unknown error!'
             });
             return
         }
 
         res.json({
             status: 1,
-            message: 'Transaction has been deleted'
+            message: 'Transaction has been deleted.'
         });
     }
     catch (e) {
