@@ -381,8 +381,8 @@ module.exports.Generate2FACode = function () {
     return str.substr( 0, length ).toUpperCase();
 };
 
-module.exports.GetLatestBlocks = async function (limit = 10) {
-    let url = CONFIGS.BLOCKCHAIN_API_URL + '/blocks/?order=-1&limit=10';
+module.exports.GetLatestBlocks = async function (limit = 100) {
+    let url = CONFIGS.BLOCKCHAIN_API_URL + `/blocks/?order=-1&limit=${limit}`;
     let blocks = await UtilService.SendGetRequest(url);
     return blocks;
 };
