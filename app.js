@@ -4,6 +4,7 @@ let favicon      = require('serve-favicon');
 let logger       = require('morgan');
 let cookieParser = require('cookie-parser');
 let bodyParser   = require('body-parser');
+let cors         = require('cors');
 let mongoose     = require('mongoose');
 let index        = require('./routes/index');
 let apis         = require('./routes/apis');
@@ -25,22 +26,12 @@ app.set('view engine', 'hbs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(cors());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-
-app.use(function(req, res, next) {
-    if (req.headers.origin) {
-        res.header('Access-Control-Allow-Origin', '*');
-        res.header('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type,Authorization');
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,PATCH,POST,DELETE');
-        if (req.method === 'OPTIONS') return res.send(200);
-    }
-    next();
-});
 
 app.use('/', index);
 app.use('/api', apis);
