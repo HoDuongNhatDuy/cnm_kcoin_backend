@@ -1,5 +1,5 @@
 module.exports = {
-    MONGO_DB_CONNECTION_STRING: 'mongodb://localhost:27017/kcoin_db_test',
+    MONGO_DB_CONNECTION_STRING: 'mongodb://duyho:duyho@ds135537.mlab.com:35537/kcoin',
     BLOCKCHAIN_API_URL: 'https://api.kcoin.club',
     EMAIL: {
         HOST: 'mail.smtp2go.com',
