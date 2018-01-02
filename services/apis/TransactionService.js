@@ -91,12 +91,16 @@ module.exports.DeleteLocalTransaction = function (transactionId) {
     });
 };
 
-module.exports.UpdateRemoteTransaction = function (remoteTx) {
+function UpdateRemoteTransaction(remoteTx) {
     return new Promise(resolve => {
         remoteTx.save(function (err, tx) {
             resolve(tx);
         });
     });
+}
+
+module.exports.UpdateRemoteTransaction = function (remoteTx) {
+    return UpdateRemoteTransaction(remoteTx);
 };
 
 function SignMessage(message, privateKeyHex) {
