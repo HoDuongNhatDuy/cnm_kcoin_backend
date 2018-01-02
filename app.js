@@ -4,6 +4,7 @@ let favicon      = require('serve-favicon');
 let logger       = require('morgan');
 let cookieParser = require('cookie-parser');
 let bodyParser   = require('body-parser');
+let cors         = require('cors');
 let mongoose     = require('mongoose');
 let index        = require('./routes/index');
 let apis         = require('./routes/apis');
@@ -30,12 +31,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    next();
-});
+app.use(cors({
+    origin: 'https://my-kcoin.herokuapp.com'
+}));
 
 app.use('/', index);
 app.use('/api', apis);
