@@ -12,7 +12,11 @@ let CONFIGS      = require('./configs');
 
 let app = express();
 
-mongoose.connect(CONFIGS.MONGO_DB_CONNECTION_STRING);
+mongoose.connect(CONFIGS.MONGO_DB.CONNECTION_STRING, {
+    useMongoClient: true,
+    user: CONFIGS.MONGO_DB.USERNAME,
+    pass: CONFIGS.MONGO_DB.PASSWORD,
+});
 mongoose.set("debug", true);
 
 
@@ -22,13 +26,12 @@ app.set('view engine', 'hbs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(cors());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors());
-
 
 app.use('/', index);
 app.use('/api', apis);
