@@ -7,7 +7,7 @@ exports.GetDashboardInfo = async function (req, res, next) {
         console.log(address);
         let available = await TransactionService.GetBalance(address, CONFIGS.BALANCE_TYPE.AVAILABLE);
         let actual = await TransactionService.GetBalance(address, CONFIGS.BALANCE_TYPE.ACTUAL);
-        let recent = await TransactionService.GetLocalTransactions(address, true, 0, 10);
+        let recent = await TransactionService.GetLocalTransactions(address, true, 0, 100);
 
         res.json({
             status: 1,

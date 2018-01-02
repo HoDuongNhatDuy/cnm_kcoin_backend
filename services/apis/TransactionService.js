@@ -15,9 +15,9 @@ module.exports.GetLocalTransactionById = function (id) {
     });
 };
 
-function GetPendingTransactionByDstAddress(dstAddress) {
+function GetPendingTransactionByDstAddress(dstAddress, amount) {
     return new Promise(resolve => {
-        LocalTransaction.findOne({dst_addr: dstAddress, status: CONFIGS.LOCAL_TRANSACTION_STATUS.PENDING}, function (error, tx) {
+        LocalTransaction.findOne({dst_addr: dstAddress, status: CONFIGS.LOCAL_TRANSACTION_STATUS.PENDING, amount}, function (error, tx) {
             resolve(tx);
         });
     });
@@ -241,7 +241,7 @@ function GetLocalTransactions (address, sort = null, offset = 0, limit = 10) {
     });
 }
 
-module.exports.GetLocalTransactions = async function (address, sort = null, offset = 0, limit = 10) {
+module.exports.GetLocalTransactions = async function (address, sort = null, offset = 0, limit = 100) {
     return await GetLocalTransactions(address, sort, offset, limit);
 };
 
@@ -402,6 +402,7 @@ module.exports.SyncTransactions = async function (transactions, isInitAction = f
         let transaction = transactions[index];
         let outputs = transaction.outputs;
         let hash = transaction.hash;
+        let isReceiveRefund = false;
         for (let outputIndex in outputs) {
             let output = outputs[outputIndex];
             let value = output.value;
@@ -409,12 +410,13 @@ module.exports.SyncTransactions = async function (transactions, isInitAction = f
             let dstAddress = lockScript.split(" ")[1];
 
             // confirm pending transaction
-            let pendingTransaction = await GetPendingTransactionByDstAddress(dstAddress);
+            let pendingTransaction = await GetPendingTransactionByDstAddress(dstAddress, value);
             if (pendingTransaction) {
-                pendingTransaction.remaining_amount = pendingTransaction.amount - value;
+                pendingTransaction.remaining_amount = 0;
                 pendingTransaction.status           = CONFIGS.LOCAL_TRANSACTION_STATUS.DONE;
 
                 let updatedTransaction = await UpdateLocalTransaction(pendingTransaction);
+                isReceiveRefund = true;
                 continue;
             }
 
@@ -430,6 +432,9 @@ module.exports.SyncTransactions = async function (transactions, isInitAction = f
                     status: CONFIGS.REMOTE_TRANSACTION_STATUS.FREE,
                 };
                 let newRemoteTransaction        = await CreateRemoteTransaction(remoteRemoteTransactionData);
+
+                if (isReceiveRefund)
+                    continue;
 
                 let localTransactionData = {
                     src_addr: '',
