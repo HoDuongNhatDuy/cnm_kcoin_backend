@@ -1,5 +1,9 @@
 module.exports = {
-    MONGO_DB_CONNECTION_STRING: 'mongodb://kcoinuser:Kcoinuser123@ds135537.mlab.com:35537/kcoin',
+    MONGO_DB: {
+        CONNECTION_STRING: 'mongodb://duyho:duyho@ds135537.mlab.com:35537/kcoin',
+        USERNAME: 'duyho',
+        PASSWORD: 'duyho'
+    },
     BLOCKCHAIN_API_URL: 'https://api.kcoin.club',
     EMAIL: {
         HOST: 'mail.smtp2go.com',

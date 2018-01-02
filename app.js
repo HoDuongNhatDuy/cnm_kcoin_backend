@@ -12,7 +12,11 @@ let CONFIGS      = require('./configs');
 
 let app = express();
 
-mongoose.connect(CONFIGS.MONGO_DB_CONNECTION_STRING);
+mongoose.connect(CONFIGS.MONGO_DB.CONNECTION_STRING, {
+    useMongoClient: true,
+    user: CONFIGS.MONGO_DB.USERNAME,
+    pass: CONFIGS.MONGO_DB.PASSWORD,
+});
 mongoose.set("debug", true);
 
 
