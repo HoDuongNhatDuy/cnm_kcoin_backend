@@ -32,12 +32,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-    res.setHeader('Access-Control-Request-Method', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', '*');
-
+app.use(function(req, res, next) {
+    if (req.headers.origin) {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type,Authorization');
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,PATCH,POST,DELETE');
+        if (req.method === 'OPTIONS') return res.send(200);
+    }
     next();
 });
 
