@@ -1,6 +1,6 @@
 module.exports = {
     MONGO_DB: {
-        CONNECTION_STRING: 'mongodb://duyho:duyho@ds135537.mlab.com:35537/kcoin',
+        CONNECTION_STRING: 'mongodb://ds135537.mlab.com:35537/kcoin',
         USERNAME: 'duyho',
         PASSWORD: 'duyho'
     },
