@@ -411,33 +411,30 @@ module.exports.SyncTransactions = async function (transactions, isInitAction = f
                 pendingTransaction.status           = CONFIGS.LOCAL_TRANSACTION_STATUS.DONE;
 
                 let updatedTransaction = await UpdateLocalTransaction(pendingTransaction);
+                continue;
             }
 
             // sync new transaction
             let user = await UserService.GetUserByAddress(dstAddress);
             let existingRemoteTransaction = await GetRemoteTransactionByHashIndex(hash, outputIndex);
-            if (user) {
-                if (!existingRemoteTransaction) {
-                    let remoteRemoteTransactionData = {
-                        src_hash: hash,
-                        index: outputIndex,
-                        dst_addr: dstAddress,
-                        amount: value,
-                        status: CONFIGS.REMOTE_TRANSACTION_STATUS.FREE,
-                    };
-                    let newRemoteTransaction        = await CreateRemoteTransaction(remoteRemoteTransactionData);
-                }
+            if (!existingRemoteTransaction && user) {
+                let remoteRemoteTransactionData = {
+                    src_hash: hash,
+                    index: outputIndex,
+                    dst_addr: dstAddress,
+                    amount: value,
+                    status: CONFIGS.REMOTE_TRANSACTION_STATUS.FREE,
+                };
+                let newRemoteTransaction        = await CreateRemoteTransaction(remoteRemoteTransactionData);
 
-                if (isInitAction || outputs.length < 2) { // outputs > 1 => it has refund amount => we don't use it
-                    let localTransactionData = {
-                        src_addr: '',
-                        dst_addr: dstAddress,
-                        amount: value,
-                        remaining_amount: 0,
-                        status: CONFIGS.LOCAL_TRANSACTION_STATUS.DONE,
-                    };
-                    let newLocalTransaction  = await CreateLocalTransaction(localTransactionData);
-                }
+                let localTransactionData = {
+                    src_addr: '',
+                    dst_addr: dstAddress,
+                    amount: value,
+                    remaining_amount: 0,
+                    status: CONFIGS.LOCAL_TRANSACTION_STATUS.DONE,
+                };
+                let newLocalTransaction  = await CreateLocalTransaction(localTransactionData);
             }
         }
     }
