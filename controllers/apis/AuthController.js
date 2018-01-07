@@ -171,3 +171,80 @@ exports.Login = async function (req, res, next) {
     }
 
 };
+
+exports.SendResetPasswordEmail = async function (req, res, next) {
+    try {
+        let email       = req.body.email;
+        let redirectURL = req.body.redirect_url;
+
+        let user = await UserService.GetUserByEmail(email);
+        if (!user) {
+            res.json({
+                status: 0,
+                message: 'User not found!'
+            });
+            return;
+        }
+
+        userId          = user.id;
+        let mailOptions = {
+            from: `KCoin <${CONFIGS.EMAIL.SENDER}>`,
+            to: email,
+            subject: 'KCoin - Reset Password',
+            html: `Welcome to KCoin. <b><a href="${redirectURL}/${userId}">Click here to reset password</a></b>`
+        };
+        let sendEmailResult = await EmailService.SendEmail(mailOptions);
+        if (sendEmailResult) {
+            res.json({
+                status: 1,
+                message: 'An email has been sent to the email address you provided.'
+            });
+        }
+        else {
+            res.json({
+                status: 0,
+                message: 'Unknown error!'
+            });
+        }
+    }
+    catch (e) {
+        res.json({
+            status: 0,
+            message: e
+        });
+    }
+};
+
+exports.ResetPassword = async function (req, res, next) {
+    try {
+        let userId       = req.body.user_id;
+        let password     = req.body.password;
+        let user = await UserService.GetUserById(userId);
+        if (!user) {
+            res.json({
+                status: 0,
+                message: 'User not found!'
+            });
+            return;
+        }
+
+        let updatedUser = UserService.UpdateUser(user, {password});
+        if (!updatedUser) {
+            res.json({
+                status: 0,
+                message: 'Fail to reset password!'
+            });
+            return;
+        }
+        res.json({
+            status: 1,
+            message: 'Your password has been changed.'
+        });
+    }
+    catch (e) {
+        res.json({
+            status: 0,
+            message: e.message
+        });
+    }
+};

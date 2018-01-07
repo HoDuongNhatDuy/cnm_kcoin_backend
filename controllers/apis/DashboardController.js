@@ -1,10 +1,9 @@
 let TransactionService = require('../../services/apis/TransactionService');
 const CONFIGS      = require('../../configs');
 
-exports.GetDashboardInfo = async function (req, res, next) {
+exports.GetDashboardInfo = async function (user, req, res, next) {
     try {
-        let address = req.params.address;
-        console.log(address);
+        let address = user.address;
         let available = await TransactionService.GetBalance(address, CONFIGS.BALANCE_TYPE.AVAILABLE);
         let actual = await TransactionService.GetBalance(address, CONFIGS.BALANCE_TYPE.ACTUAL);
         let recent = await TransactionService.GetLocalTransactions(address, true, 0, 100);

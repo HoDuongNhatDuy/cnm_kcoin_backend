@@ -3,9 +3,9 @@ const UserService = require('../../services/apis/UserService');
 const CONFIGS      = require('../../configs');
 const EmailService = require('../../services/EmailService');
 
-exports.GetTransactions = async function (req, res, next) {
+exports.GetTransactions = async function (user, req, res, next) {
     try {
-        let address = req.params.address;
+        let address = user.address;
         let offset  = typeof req.query.offset !== 'undefined' ? req.query.offset : 0;
         let limit   = typeof req.query.limit !== 'undefined' ? req.query.limit : 10;
         let result  = await TransactionService.GetLocalTransactions(address, true, offset, limit);
@@ -25,9 +25,9 @@ exports.GetTransactions = async function (req, res, next) {
     }
 };
 
-exports.CreateTransaction = async function (req, res, next) {
+exports.CreateTransaction = async function (user, req, res, next) {
     try {
-        let srcAddress = req.body.src_addr;
+        let srcAddress = user.address;
         let dstAddress = req.body.dst_arrd;
         let amount     = req.body.amount;
 
@@ -94,7 +94,7 @@ exports.CreateTransaction = async function (req, res, next) {
     }
 };
 
-exports.SendCreateTransactionConfirmationEmail = async function (req, res, next) {
+exports.SendCreateTransactionConfirmationEmail = async function (user, req, res, next) {
     try {
         let transactionId = req.params.transactionId;
         let transaction = await TransactionService.GetLocalTransactionById(transactionId);
@@ -142,7 +142,7 @@ exports.SendCreateTransactionConfirmationEmail = async function (req, res, next)
     }
 };
 
-exports.ConfirmTransaction = async function (req, res, next) {
+exports.ConfirmTransaction = async function (user, req, res, next) {
     try {
         let transactionId = req.body.transaction_id;
         let code          = req.body.code;
@@ -208,7 +208,7 @@ exports.ConfirmTransaction = async function (req, res, next) {
     }
 };
 
-exports.DeleteTransaction = async function (req, res, next) {
+exports.DeleteTransaction = async function (user, req, res, next) {
     try {
         let transactionId = req.params.transactionId;
         let deleteResult = await TransactionService.DeleteLocalTransaction(transactionId);

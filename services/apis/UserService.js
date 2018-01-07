@@ -52,6 +52,15 @@ module.exports.GetUserByEmail = function (email) {
     });
 };
 
+module.exports.GetUserByAccessToken = function (accessToken) {
+    return new Promise(resolve => {
+        let query = {access_token: accessToken};
+        User.findOne(query, function (error, user) {
+            resolve(user)
+        });
+    });
+};
+
 module.exports.GetUserById = function (id) {
     return new Promise(resolve => {
         User.findById(id, function (error, user) {

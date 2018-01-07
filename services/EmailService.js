@@ -8,6 +8,7 @@ exports.SendEmail = function (emailOption) {
   return new Promise(resolve => {
       emailTransporter.sendMail(emailOption, function (error, info) {
           if (error){
+              console.log(error);
               resolve(false);
           }
           else {
