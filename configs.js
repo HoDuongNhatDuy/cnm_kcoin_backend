@@ -1,17 +1,20 @@
 module.exports = {
     MONGO_DB: {
+        // CONNECTION_STRING: 'mongodb://localhost:27017/kcoin_db_test',
+        // USERNAME: '',
+        // PASSWORD: '',
         CONNECTION_STRING: 'mongodb://ds135537.mlab.com:35537/kcoin',
         USERNAME: 'duyho',
-        PASSWORD: 'duyho'
+        PASSWORD: 'duyho',
     },
     BLOCKCHAIN_API_URL: 'https://api.kcoin.club',
     EMAIL: {
         HOST: 'mail.smtp2go.com',
         PORT: 2525,
-        SENDER: 'smtpusername1@mail.smtp2go.com',
+        SENDER: 'smtpusername3@mail.smtp2go.com',
         AUTH: {
-            USER: 'smtpusername1',
-            PASS: 'd201c3h3c3VtdDAw'
+            USER: 'smtpusername3',
+            PASS: 'aXNwOGgzemRuaHMw'
         }
     },
     LOCAL_TRANSACTION_STATUS: {
