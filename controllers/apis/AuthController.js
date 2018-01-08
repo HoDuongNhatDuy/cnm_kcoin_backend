@@ -191,7 +191,7 @@ exports.SendResetPasswordEmail = async function (req, res, next) {
             from: `KCoin <${CONFIGS.EMAIL.SENDER}>`,
             to: email,
             subject: 'KCoin - Reset Password',
-            html: `Welcome to KCoin. <b><a href="${redirectURL}/${userId}">Click here to reset password</a></b>`
+            html: `Hello there. <b><a href="${redirectURL}/${userId}">Please click here to reset password</a></b>`
         };
         let sendEmailResult = await EmailService.SendEmail(mailOptions);
         if (sendEmailResult) {
@@ -203,7 +203,7 @@ exports.SendResetPasswordEmail = async function (req, res, next) {
         else {
             res.json({
                 status: 0,
-                message: 'Unknown error!'
+                message: 'An unknown error occured!'
             });
         }
     }
@@ -232,7 +232,7 @@ exports.ResetPassword = async function (req, res, next) {
         if (!updatedUser) {
             res.json({
                 status: 0,
-                message: 'Fail to reset password!'
+                message: 'Failed to reset password!'
             });
             return;
         }
