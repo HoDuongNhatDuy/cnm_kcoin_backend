@@ -49,7 +49,7 @@ exports.CreateTransaction = async function (user, req, res, next) {
             return;
         }
 
-        let dstUser = UserService.GetUserByAddress(dstAddress);
+        let dstUser = await UserService.GetUserByAddress(dstAddress);
         if (!dstUser) { // is send money to external transaction
             let availableBalance = await TransactionService.GetAvailableBalanceOfServer();
             if (availableBalance < amount){
