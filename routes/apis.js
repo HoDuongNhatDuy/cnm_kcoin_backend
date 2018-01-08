@@ -3,6 +3,7 @@ let router = express.Router();
 let AuthController = require('../controllers/apis/AuthController');
 let DashboardController = require('../controllers/apis/DashboardController');
 let TransactionController = require('../controllers/apis/TransactionController');
+let UserController = require('../controllers/apis/UserController');
 let TransactionService = require('../services/apis/TransactionService');
 let UtilService = require('../services/UtilService');
 let UserService = require('../services/apis/UserService');
@@ -27,6 +28,34 @@ async function authCheck(req, res, next) {
     next(user);
 }
 
+async function adminAuthCheck(req, res, next) {
+    let token = req.headers.authorization;
+    if (!token) {
+        res.json({
+            status: -1,
+            message: 'Access is denied'
+        });
+        return;
+    }
+    let user = await UserService.GetUserByAccessToken(token);
+    if (!user || user.expired_at < Date.now()) {
+        res.json({
+            status: -1,
+            message: 'Your session has expired!'
+        });
+        return;
+    }
+    if (!user.is_admin){
+        res.json({
+            status: -1,
+            message: 'Access is denied'
+        });
+        return;
+    }
+
+    next();
+}
+
 router.post('/register', AuthController.Register);
 router.get('/activate/:userId', AuthController.Active);
 router.post('/login', AuthController.Login);
@@ -43,5 +72,11 @@ router.get('/delete-transaction/:transactionId', authCheck, TransactionControlle
 
 router.get('/sync-latest-blocks', TransactionController.SyncLatestBlocks);
 router.get('/sync-block/:blockId', TransactionController.SyncBlock);
+
+router.get('/generate-admin-data', AuthController.GenerateAdminData);
+router.get('/admin/balances', adminAuthCheck, DashboardController.GetAdminBalance);
+router.get('/admin/users', adminAuthCheck, UserController.GetUsersInfo);
+router.get('/admin/users/:id', adminAuthCheck, UserController.GetUserTransactions);
+router.get('/admin/transactions', adminAuthCheck, TransactionController.GetAllRemoteTransactions);
 
 module.exports = router;

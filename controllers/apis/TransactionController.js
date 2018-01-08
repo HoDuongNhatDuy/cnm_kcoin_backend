@@ -51,7 +51,7 @@ exports.CreateTransaction = async function (user, req, res, next) {
 
         let dstUser = await UserService.GetUserByAddress(dstAddress);
         if (!dstUser) { // is send money to external transaction
-            let availableBalance = await TransactionService.GetAvailableBalanceOfServer();
+            let availableBalance = await TransactionService.GetActualBalanceOfServer();
             if (availableBalance < amount){
                 res.json({
                     status: 0,
@@ -267,6 +267,45 @@ exports.SyncBlock = async function (req, res, next) {
             status: 1,
             message: 'Synced successfully',
             data: transactions
+        });
+    }
+    catch (e) {
+        res.json({
+            status: 0,
+            message: e.message
+        });
+    }
+};
+
+exports.GetAllRemoteTransactions = async function (req, res, next) {
+    try {
+        let remoteTransactions = await TransactionService.GetRemoteTransactions();
+
+        let userList = {};
+        let data = [];
+        for (let index in remoteTransactions) {
+            let transaction = remoteTransactions[index];
+            let dstAddr = transaction.dst_addr;
+
+            if (!userList[dstAddr]){
+                let user = await UserService.GetUserByAddress(dstAddr);
+                userList[dstAddr] = user;
+            }
+
+            data.push({
+                hash: transaction.src_hash,
+                index: transaction.index,
+                dst_addr: transaction.dst_addr,
+                dst_email: userList[dstAddr] ? userList[dstAddr].email : null,
+                amount: transaction.amount,
+                status: transaction.status
+            });
+        }
+
+        res.json({
+            status: 1,
+            message: 'Got data successfully',
+            data
         });
     }
     catch (e) {

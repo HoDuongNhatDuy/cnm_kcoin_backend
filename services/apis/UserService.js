@@ -97,3 +97,23 @@ module.exports.GenerateToken = function () {
 
     return text;
 };
+
+module.exports.DeleteUserById = function (userId) {
+    return new Promise(resolve => {
+        User.find({_id: userId}).remove(function (err) {
+            resolve(!err);
+        });
+    });
+};
+
+module.exports.GetUsers = function () {
+    return new Promise(resolve => {
+        User.find({}, function (error, users) {
+            if (error){
+                resolve([]);
+                return;
+            }
+            resolve(users);
+        })
+    });
+};

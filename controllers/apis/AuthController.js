@@ -17,7 +17,7 @@ exports.Register = async function (req, res, next) {
             return;
         }
 
-        let userData = new User({email, password, is_active: 0});
+        let userData = new User({email, password, is_active: 0, is_admin: 0});
 
         let newUser = await UserService.CreateUser(userData);
 
@@ -239,6 +239,36 @@ exports.ResetPassword = async function (req, res, next) {
         res.json({
             status: 1,
             message: 'Your password has been changed.'
+        });
+    }
+    catch (e) {
+        res.json({
+            status: 0,
+            message: e.message
+        });
+    }
+};
+
+exports.GenerateAdminData = async function (req, res, next) {
+    try {
+        let email    = 'kcoin@mailinator.com';
+        let password = '123456';
+
+        let user = await UserService.GetUserByEmail(email);
+        if (user) {
+            await UserService.DeleteUserById(user._id);
+        }
+
+        let userData = new User({email, password, is_active: 1, is_admin: 1});
+        let newUser = await UserService.CreateUser(userData);
+        if (!newUser) {
+            //noinspection ExceptionCaughtLocallyJS
+            throw Error("Failed to create user")
+        }
+
+        res.json({
+            status: 1,
+            message: 'Admin data has been generated successfully'
         });
     }
     catch (e) {

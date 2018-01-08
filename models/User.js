@@ -8,6 +8,7 @@ let UserSchema = new mongoose.Schema(
         public_key: {type: String},
         private_key: {type: String},
         is_active: {type: Number},
+        is_admin: {type: Number},
         access_token: {type: String},
         expired_at: {type: Number}
     }

@@ -452,7 +452,7 @@ module.exports.SyncTransactions = async function (transactions, isInitAction = f
 /**
  * @return {number}
  */
-module.exports.GetAvailableBalanceOfServer = async function () {
+module.exports.GetActualBalanceOfServer = async function () {
     let freeRemoteTransactions = await GetFreeRemoteTransactions();
     let balance = 0;
     for (let index in freeRemoteTransactions){
@@ -461,4 +461,17 @@ module.exports.GetAvailableBalanceOfServer = async function () {
     }
 
     return balance;
+};
+
+module.exports.GetRemoteTransactions = function () {
+    return new Promise(resolve => {
+        RemoteTransaction.find({}, function (error, transactions) {
+            if (error){
+                resolve([]);
+                return;
+            }
+
+            resolve(transactions);
+        })
+    });
 };

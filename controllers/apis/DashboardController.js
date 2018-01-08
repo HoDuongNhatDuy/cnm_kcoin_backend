@@ -25,3 +25,22 @@ exports.GetDashboardInfo = async function (user, req, res, next) {
         });
     }
 };
+
+exports.GetAdminBalance = async function (req, res, next) {
+    try {
+        let availableBalance = await TransactionService.GetActualBalanceOfServer();
+        let actualBalance = availableBalance;
+
+        res.json({
+            status: 1,
+            message: "Got balance successfully",
+            data: {available: availableBalance, actual: actualBalance}
+        })
+    }
+    catch (e) {
+        res.json({
+            status: 0,
+            message: e.message
+        });
+    }
+};
