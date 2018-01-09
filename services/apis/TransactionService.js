@@ -23,6 +23,14 @@ function GetPendingTransactionByDstAddress(dstAddress, amount) {
     });
 }
 
+function GetAllPendingTransaction() {
+    return new Promise(resolve => {
+        LocalTransaction.findOne({status: CONFIGS.LOCAL_TRANSACTION_STATUS.PENDING}, function (error, tx) {
+            resolve(tx);
+        });
+    });
+}
+
 module.exports.GetPendingTransactionByDstAddress = function (dstAddress) {
    return GetPendingTransactionByDstAddress(dstAddress);
 };
@@ -284,7 +292,7 @@ function GetFreeRemoteTransactions() {
     });
 }
 
-async function BuildTransactionRequest(srcAddress, dstAddress, amount) {
+async function BuildTransactionRequest(transactionId, srcAddress, dstAddress, amount) {
     let freeTransactions = await GetFreeRemoteTransactions();
     let useResources = [];
     let remainingAmount = amount;
@@ -293,6 +301,7 @@ async function BuildTransactionRequest(srcAddress, dstAddress, amount) {
         useResources.push(freeTransaction);
 
         freeTransaction.status = CONFIGS.REMOTE_TRANSACTION_STATUS.USED;
+        freeTransaction.used_for = transactionId;
         let updatedTransaction = await UpdateRemoteTransaction(freeTransaction);
 
         remainingAmount -= freeTransaction.amount;
@@ -339,8 +348,8 @@ async function BuildTransactionRequest(srcAddress, dstAddress, amount) {
 /**
  * @return {boolean}
  */
-module.exports.SendTransactionRequest = async function (srcAddress, dstAddress, amount) {
-    let requestData = await BuildTransactionRequest(srcAddress, dstAddress, amount);
+module.exports.SendTransactionRequest = async function (transactionId, srcAddress, dstAddress, amount) {
+    let requestData = await BuildTransactionRequest(transactionId, srcAddress, dstAddress, amount);
     let signedRequest = SignTransactionRequest(requestData.inputs, requestData.outputs);
 
     console.log(signedRequest);
@@ -474,4 +483,38 @@ module.exports.GetRemoteTransactions = function () {
             resolve(transactions);
         })
     });
+};
+
+function GetSourceTransactions(transactionId) {
+    return new Promise(resolve => {
+        RemoteTransaction.find({used_for: transactionId}, function (error, transactions) {
+            if (error) {
+                resolve([]);
+                return;
+            }
+            resolve(transactions);
+        })
+    });
+}
+
+/**
+ * @return {number}
+ */
+module.exports.GetPendingBalanceOfServer = async function () {
+    let pendingAmount = 0;
+    let pendingTransactions = await GetAllPendingTransaction();
+
+    for (let index in pendingTransactions) {
+        let local = pendingTransactions[index];
+
+        let sources = await GetSourceTransactions(local._id);
+        let sourceAmount = 0;
+        for (let sourceIndex in sources) {
+            let source = sources[sourceIndex];
+            sourceAmount += source.amount;
+        }
+        pendingAmount += sourceAmount - local.amount;
+    }
+
+    return pendingAmount;
 };

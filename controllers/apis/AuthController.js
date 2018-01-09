@@ -159,7 +159,8 @@ exports.Login = async function (req, res, next) {
                 access_token: token,
                 expired_at: expiredAt,
                 email: email,
-                address: user.address
+                address: user.address,
+                is_admin: user.is_admin
             }
         });
     }

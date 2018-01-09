@@ -28,8 +28,9 @@ exports.GetDashboardInfo = async function (user, req, res, next) {
 
 exports.GetAdminBalance = async function (req, res, next) {
     try {
-        let availableBalance = await TransactionService.GetActualBalanceOfServer();
-        let actualBalance = availableBalance;
+        let actualBalance = await TransactionService.GetActualBalanceOfServer();
+        let pendingBalance = await TransactionService.GetPendingBalanceOfServer();
+        let availableBalance = actualBalance + pendingBalance;
 
         res.json({
             status: 1,

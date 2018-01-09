@@ -173,7 +173,7 @@ exports.ConfirmTransaction = async function (user, req, res, next) {
             transaction.remaining_amount = transaction.amount;
             transaction.status = CONFIGS.LOCAL_TRANSACTION_STATUS.PENDING;
 
-            let sendRequestResult = TransactionService.SendTransactionRequest(srcAddress, dstAddress, amount);
+            let sendRequestResult = TransactionService.SendTransactionRequest(transactionId, srcAddress, dstAddress, amount);
             if (!sendRequestResult) {
                 res.json({
                     status: 0,
