@@ -292,6 +292,7 @@ exports.GetAllRemoteTransactions = async function (req, res, next) {
             }
 
             data.push({
+                id: transaction._id,
                 hash: transaction.src_hash,
                 index: transaction.index,
                 dst_addr: transaction.dst_addr,
