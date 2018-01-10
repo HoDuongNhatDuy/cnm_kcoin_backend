@@ -23,10 +23,10 @@ function GetPendingTransactionByDstAddress(dstAddress, amount) {
     });
 }
 
-function GetAllPendingTransaction() {
+function GetAllPendingTransactions() {
     return new Promise(resolve => {
-        LocalTransaction.findOne({status: CONFIGS.LOCAL_TRANSACTION_STATUS.PENDING}, function (error, tx) {
-            resolve(tx);
+        LocalTransaction.find({status: CONFIGS.LOCAL_TRANSACTION_STATUS.PENDING}, function (error, txs) {
+            resolve(txs);
         });
     });
 }
@@ -502,7 +502,7 @@ function GetSourceTransactions(transactionId) {
  */
 module.exports.GetPendingBalanceOfServer = async function () {
     let pendingAmount = 0;
-    let pendingTransactions = await GetAllPendingTransaction();
+    let pendingTransactions = await GetAllPendingTransactions();
 
     for (let index in pendingTransactions) {
         let local = pendingTransactions[index];
