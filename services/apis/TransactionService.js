@@ -260,7 +260,6 @@ module.exports.GetBalance = async function(address, type = CONFIGS.BALANCE_TYPE.
     let transactions  = await GetLocalTransactions(address);
     let receivedAmount = 0;
     let sentAmount    = 0;
-    conosle.log(transactions);
     for (let index in transactions) {
         let transaction = transactions[index];
 
