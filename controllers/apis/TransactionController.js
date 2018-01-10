@@ -244,7 +244,6 @@ exports.SyncLatestBlocks = async function (req, res, next) {
         res.json({
             status: 1,
             message: 'Synced successfully',
-            data: blocks
         });
     }
     catch (e) {

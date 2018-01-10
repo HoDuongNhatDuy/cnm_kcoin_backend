@@ -220,7 +220,7 @@ function SignTransactionRequest (inputs, outputs) {
     return bountyTransaction;
 }
 
-function GetLocalTransactions (address, sort = null, offset = 0, limit = 1000) {
+function GetLocalTransactions (address, sort = null, offset = 0, limit = 10000) {
     return new Promise(resolve => {
         let query = LocalTransaction.find({
             $or: [
@@ -249,7 +249,7 @@ function GetLocalTransactions (address, sort = null, offset = 0, limit = 1000) {
     });
 }
 
-module.exports.GetLocalTransactions = async function (address, sort = null, offset = 0, limit = 100) {
+module.exports.GetLocalTransactions = async function (address, sort = null, offset = 0, limit = 10000) {
     return await GetLocalTransactions(address, sort, offset, limit);
 };
 
