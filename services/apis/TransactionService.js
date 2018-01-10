@@ -220,7 +220,7 @@ function SignTransactionRequest (inputs, outputs) {
     return bountyTransaction;
 }
 
-function GetLocalTransactions (address, sort = null, offset = 0, limit = 10) {
+function GetLocalTransactions (address, sort = null, offset = 0, limit = 1000) {
     return new Promise(resolve => {
         let query = LocalTransaction.find({
             $or: [

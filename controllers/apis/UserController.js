@@ -44,7 +44,7 @@ exports.GetUserTransactions = async function (req, res, next) {
         let userId = req.params.id;
         let user = await UserService.GetUserById(userId);
 
-        let transactions = await TransactionService.GetLocalTransactions(user.address, null, 0, null);
+        let transactions = await TransactionService.GetLocalTransactions(user.address, null, 0, 1000);
 
         res.json({
             status: 1,
